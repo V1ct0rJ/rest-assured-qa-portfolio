@@ -1,0 +1,14 @@
+Feature: Umbrella Corporation Mainframe Security & Bio-Organic Weapon Verification
+
+  Scenario: STARS Agent fails authentication on Antarctic Transport Facility (Code Veronica)
+    Given Agent "Claire Redfield" attempts access to "Rockfort Terminal"
+    And she inputs security passcode "VERONICA-1998"
+    When the system validates credentials via endpoint "/users/999"
+    Then the mainframe should respond with HTTP status 404
+    And the system response should confirm access denied
+
+  Scenario: Research Director retrieves B.O.W. status report from NEST Mainframe (RE2)
+    Given Researcher "William Birkin" is authenticated on NEST Terminal
+    When he requests system data for subject ID 1
+    Then the mainframe should respond with HTTP status 200
+    And the response body field "username" should be "Bret"

@@ -1,0 +1,84 @@
+@api @umbrella
+Feature: Umbrella Corporation Enterprise API - V1 Validation
+
+  @smoke @positive
+  Scenario: Successful personnel retrieval (William Birkin)
+    Given I set the target endpoint to "/users/1"
+    When I send a GET request
+    Then the response status code should be 200
+    And the response body field "name" should be "Leanne Graham"
+    And the response body field "username" should be "Bret"
+
+  @security @negative
+  Scenario: Unauthorized facility access attempt (Claire Redfield)
+    Given I add header "X-Umbrella-Passcode" with value "4829"
+    And I set the target endpoint to "/users/999"
+    When I send a GET request
+    Then the response status code should be 404
+
+  @smoke @post
+  Scenario: Register new bio-data record via POST
+    Given I set the target endpoint to "/posts"
+    And I set request body:
+      """
+      {
+        "title": "NE-Alpha Parasite Data",
+        "body": "Test results for Nemesis T-Type project",
+        "userId": 1
+      }
+      """
+    When I send a POST request
+    Then the response status code should be 201
+    And the response body field "title" should be "NE-Alpha Parasite Data"
+    And the response body field "userId" should be integer 1
+
+  @regression
+  Scenario: Search for personnel using dynamic path and query parameters
+    Given I set path parameter "id" to "1"
+    And I add query parameter "userId" with value "1"
+    And I set the target endpoint to "/users/{id}"
+    When I send a GET request
+    Then the response status code should be 200
+    And the response body field "id" should be integer 1
+
+  @negative
+  Scenario: Reject bio-data creation with malformed request body
+    Given I set the target endpoint to "/posts"
+    And I set request body:
+      """
+      {
+        "title": "NE-Alpha Parasite Data",
+        "body": "Missing closing brace and quote
+      """
+    When I send a POST request
+    Then the response status code should be 500
+
+  @negative
+  Scenario: Validate error payload structure on 404
+    Given I set the target endpoint to "/posts/invalid_id"
+    When I send a GET request
+    Then the response status code should be 404
+
+  @regression @negative
+  Scenario Outline: Validate non-existent endpoints and invalid paths return client errors
+    Given I set the target endpoint to "<endpoint>"
+    When I send a GET request
+    Then the response status code should be <expectedStatus>
+
+    Examples:
+      | endpoint          | expectedStatus |
+      | /users/999        | 404            |
+      | /posts/invalid_id | 404            |
+      | /comments/99999   | 404            |
+
+  @regression @datadriven
+  Scenario Outline: Validate Umbrella Bio-Data records by Record ID
+    Given I set the target endpoint to "/posts/<recordId>"
+    When I send a GET request
+    Then the response status code should be <expectedStatus>
+
+    Examples:
+      | recordId | expectedStatus |
+      | 1        | 200            |
+      | 2        | 200            |
+      | 99999    | 404            |
