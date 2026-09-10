@@ -75,4 +75,10 @@ public class GenericApiSteps {
         // ITT TÖRTÉNIK AZ ÁTUGRÁS az UmbrellaApiClient új metódusába:
         apiClient.setQueryParam(name, value);
     }
+
+    @Then("the response time should be less than {long} milliseconds")
+    public void theResponseBodyTimeShouldBeLessThanMilliseconds(long maxTimeMs) {
+        apiClient.getLastResponse().then().time(org.hamcrest.Matchers.lessThan(maxTimeMs));
+        System.out.println("⏱️ Válaszidő ellenőrizve: kevesebb mint " + maxTimeMs + " ms (Aktuális: " + apiClient.getLastResponse().getTime() + " ms)");
+    }
 }

@@ -89,3 +89,10 @@ Feature: Umbrella Corporation Enterprise API - V1 Validation
     And I set the target endpoint to "/posts"
     When I send a POST request
     Then the response status code should be 201
+
+  @api @umbrella @performance @sla
+  Scenario: Validate API response time is within SLA limits
+    Given I set the target endpoint to "/users/1"
+    When I send a GET request
+    Then the response status code should be 200
+    And the response time should be less than 2000 milliseconds
