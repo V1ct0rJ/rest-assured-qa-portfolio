@@ -1,11 +1,11 @@
-name: Umbrella API Cucumber BDD Tests
+name: Umbrella API Tests with Allure
 
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch:
+  workflow_dispatch: # Meghagytuk a manuális indítás lehetőségét!
 
 jobs:
   test:
@@ -22,12 +22,26 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Run Cucumber BDD Tests with Maven
+      - name: Run Tests with Maven
         run: mvn clean test
 
+      # ÚJ LÉPÉS: Allure riport generálása a tesztfutás után
+      - name: Generate Allure Report
+        if: always()
+        run: mvn allure:report
+
+      # EREDETI LÉPÉS: Megtartjuk a Cucumber HTML riport feltöltését is
       - name: Upload Cucumber HTML Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cucumber-html-report
           path: target/cucumber-reports/cucumber.html
+
+      # ÚJ LÉPÉS: Az Allure weboldal fájljainak feltöltése
+      - name: Upload Allure Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-execution-report
+          path: target/site/allure-maven-plugin

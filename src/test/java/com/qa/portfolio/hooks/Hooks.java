@@ -1,5 +1,6 @@
-package com.qa.portfolio.steps;
+package com.qa.portfolio.hooks;
 
+import com.qa.portfolio.context.TestContext;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -36,5 +37,8 @@ public class Hooks {
 
         // Takarítás: Töröljük a globális beállításokat a következő teszt előtt
         RestAssured.reset();
+
+        // Tisztítás a szál befejezésekor
+        TestContext.unload();
     }
 }

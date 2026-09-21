@@ -7,14 +7,15 @@ import org.junit.platform.suite.api.Suite;
 
 import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
-import static io.cucumber.junit.platform.engine.Constants.FILTER_TAGS_PROPERTY_NAME; // ➕ ÚJ IMPORT
 
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.qa.portfolio.steps, com.qa.portfolio.base")
-@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, html:target/cucumber-reports/cucumber.html, json:target/cucumber-reports/cucumber.json")
-//@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@smoke and @positive") // ➕ TAG SZŰRÉS: Csak a @smoke fut ami pozitív is!
+@ConfigurationParameter(
+        key = PLUGIN_PROPERTY_NAME,
+        value = "pretty, html:target/cucumber-reports/cucumber.html, json:target/cucumber-reports/cucumber.json, io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
+)
 public class RunCucumberTest {
     // Ez az osztály üres marad!
 }
