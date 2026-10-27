@@ -96,3 +96,18 @@ Feature: Umbrella Corporation Enterprise API - V1 Validation
     When I send a GET request
     Then the response status code should be 200
     And the response time should be less than 2000 milliseconds
+
+  @regression @smoke
+  Scenario: Create a new subject with dynamically generated data
+    Given I set the target endpoint to "/posts"
+    And I generate a dynamic subject request body
+    When I send a POST request
+    Then the response status code should be 201
+
+  @regression @smoke @schema
+  Scenario: Create a new subject and validate JSON schema
+    Given I set the target endpoint to "/posts"
+    And I generate a dynamic subject request body
+    When I send a POST request
+    Then the response status code should be 201
+    And the response should match the JSON schema "schemas/subject-schema.json"

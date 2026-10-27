@@ -1,8 +1,14 @@
 package com.qa.portfolio.steps;
 
+import com.qa.portfolio.context.TestContext;
 import com.qa.portfolio.factory.SubjectDataFactory;
 import com.qa.portfolio.model.SubjectDto;
 import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.restassured.response.Response;
+
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SubjectStepDefs {
 
@@ -10,11 +16,63 @@ public class SubjectStepDefs {
     public void generateDataFromFactory() {
         SubjectDto requestSubject = SubjectDataFactory.createRandomSubject();
 
+        // Elmentjük a generált DTO-t a szálbiztos kontextusba
+        TestContext.set(TestContext.REQUEST_BODY, requestSubject);
+
         // Kinyomtatjuk a logba a pontos mezőket, amik a DTO-ban léteznek
         System.out.println("==================================================");
         System.out.println("🎲 [DATA FACTORY] Generált alany neve: " + requestSubject.getName());
         System.out.println("🎲 [DATA FACTORY] Generált státusz: " + requestSubject.getStatus());
         System.out.println("🎲 [DATA FACTORY] Generált veszélyességi szint: " + requestSubject.getDangerLevel());
         System.out.println("==================================================");
+    }
+
+    @Then("the response should match the JSON schema {string}")
+    public void verifyJsonSchema(String schemaPath) {
+        Response response = TestContext.getResponse();
+
+        // Null-safe ellenőrzés a fejlesztői élmény és tiszta hibaüzenet érdekében
+        assertThat(response)
+                .as("A REST Assured válasz objektum nem lehet null! Ellenőrizd, hogy lefutott-e a HTTP kérés (When).")
+                .isNotNull();
+
+        // Séma ellenőrzés a REST Assured modul segítségével
+        response.then()
+                .assertThat()
+                .body(matchesJsonSchemaInClasspath(schemaPath));
+    }
+
+    @Then("the response body should contain valid subject data")
+    public void verifyResponseBodyData() {
+        Response response = TestContext.getResponse();
+
+        assertThat(response)
+                .as("A válasz objektum null, nem végezhető el az adatok igazolása.")
+                .isNotNull();
+
+        SubjectDto requestDto = TestContext.get(TestContext.REQUEST_BODY);
+
+        // JSON-Path segítségével kiolvassuk a válasz mezőit
+        String returnedTitle = response.jsonPath().getString("title");
+        Integer returnedUserId = response.jsonPath().getInt("userId");
+        Integer generatedId = response.jsonPath().getInt("id");
+
+        // Haladó AssertJ láncolt ellenőrzések
+        assertThat(generatedId)
+                .as("A szerver által generált ID nem lehet null vagy 0")
+                .isNotNull()
+                .isGreaterThan(0);
+
+        if (requestDto != null && requestDto.getTitle() != null) {
+            assertThat(returnedTitle)
+                    .as("A visszakapott 'title' nem egyezik a beküldöttel!")
+                    .isEqualTo(requestDto.getTitle());
+        }
+
+        if (requestDto != null && requestDto.getUserId() != null) {
+            assertThat(returnedUserId)
+                    .as("A visszakapott 'userId' nem egyezik a beküldöttel!")
+                    .isEqualTo(requestDto.getUserId());
+        }
     }
 }

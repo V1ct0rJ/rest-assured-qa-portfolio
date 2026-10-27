@@ -1,19 +1,22 @@
 package com.qa.portfolio.steps;
 
 import com.qa.portfolio.client.UmbrellaApiClient;
+import com.qa.portfolio.context.TestContext;
+import com.qa.portfolio.factory.SubjectDataFactory;
+import com.qa.portfolio.model.SubjectDto;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 
 public class GenericApiSteps {
 
     private final UmbrellaApiClient apiClient;
     private String currentEndpoint;
 
-    // Dependency Injection (vagy sima példányosítás) a klienshez
     public GenericApiSteps() {
         this.apiClient = new UmbrellaApiClient();
     }
@@ -35,16 +38,40 @@ public class GenericApiSteps {
         apiClient.setRequestBody(payload);
     }
 
+    @Given("I set path parameter {string} to {string}")
+    public void iSetPathParameterTo(String name, String value) {
+        apiClient.setPathParam(name, value);
+    }
+
+    @Given("I add query parameter {string} with value {string}")
+    public void iAddQueryParameterWithValue(String name, String value) {
+        apiClient.setQueryParam(name, value);
+    }
+
+    // --- DINAMIKUS ADATGENERÁLÁS (Module 28) ---
+
+    @Given("I generate a dynamic subject request body")
+    public void iGenerateADynamicSubjectRequestBody() {
+        SubjectDto dynamicSubject = SubjectDataFactory.createRandomSubject();
+        apiClient.setRequestBody(dynamicSubject);
+        TestContext.set(TestContext.REQUEST_BODY, dynamicSubject);
+        System.out.println("🎲 Dinamikus Subject generálva: " + dynamicSubject.getName());
+    }
+
     // --- WHEN LÉPÉSEK (Végrehajtás) ---
 
     @When("I send a GET request")
     public void iSendAGETRequest() {
-        apiClient.executeGet(this.currentEndpoint);
+        Response response = apiClient.executeGet(this.currentEndpoint);
+        // Elmentjük a válasz objektumot a TestContext-be is a többi StepDefinition osztály számára!
+        TestContext.setResponse(response != null ? response : apiClient.getLastResponse());
     }
 
     @When("I send a POST request")
     public void iSendAPOSTRequest() {
-        apiClient.executePost(this.currentEndpoint);
+        Response response = apiClient.executePost(this.currentEndpoint);
+        // Elmentjük a válasz objektumot a TestContext-be is a többi StepDefinition osztály számára!
+        TestContext.setResponse(response != null ? response : apiClient.getLastResponse());
     }
 
     // --- THEN LÉPÉSEK (Ellenőrzések / Assert-ek) ---
@@ -64,21 +91,9 @@ public class GenericApiSteps {
         apiClient.getLastResponse().then().body(jsonPath, equalTo(expectedValue));
     }
 
-    @Given("I set path parameter {string} to {string}")
-    public void iSetPathParameterTo(String name, String value) {
-        // ITT TÖRTÉNIK AZ ÁTUGRÁS az UmbrellaApiClient új metódusába:
-        apiClient.setPathParam(name, value);
-    }
-
-    @Given("I add query parameter {string} with value {string}")
-    public void iAddQueryParameterWithValue(String name, String value) {
-        // ITT TÖRTÉNIK AZ ÁTUGRÁS az UmbrellaApiClient új metódusába:
-        apiClient.setQueryParam(name, value);
-    }
-
     @Then("the response time should be less than {long} milliseconds")
     public void theResponseBodyTimeShouldBeLessThanMilliseconds(long maxTimeMs) {
-        apiClient.getLastResponse().then().time(org.hamcrest.Matchers.lessThan(maxTimeMs));
+        apiClient.getLastResponse().then().time(lessThan(maxTimeMs));
         System.out.println("⏱️ Válaszidő ellenőrizve: kevesebb mint " + maxTimeMs + " ms (Aktuális: " + apiClient.getLastResponse().getTime() + " ms)");
     }
 }

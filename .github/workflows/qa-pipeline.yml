@@ -1,0 +1,36 @@
+name: Portfolio QA Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Kód letöltése a GitHub repository-ból
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Java (JDK 17) beállítása, amire a projekt épül
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3. Maven függőségek letöltése és a tesztek futtatása
+      # (Automatikusan lefuttatja a RunCucumberTest-et és a tests/ csomagban lévő JUnit teszteket)
+      - name: Run Maven Tests
+        run: mvn clean test
+
+      # 4. k6 telepítése a GitHub Actions virtuális gépére
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      # 5. k6 terheléses teszt futtatása a megadott scripttel
+      - name: Run k6 Load Test
+        run: k6 run umbrella-load-test.js

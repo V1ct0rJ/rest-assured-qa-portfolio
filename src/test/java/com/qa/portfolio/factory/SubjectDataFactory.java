@@ -7,6 +7,9 @@ public class SubjectDataFactory {
 
     private static final Faker faker = new Faker();
 
+    /**
+     * Generál egy teljesen dinamikus, nem-determinisztikus SubjectDto objektumot.
+     */
     public static SubjectDto createRandomSubject() {
         String randomName = "Subject-" + faker.name().firstName() + "-" + faker.number().randomNumber(3, true);
         String randomStatus = faker.options().option("CONTAINED", "TERMINATED", "MUTATING");
