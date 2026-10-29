@@ -4,10 +4,13 @@ import com.qa.portfolio.client.UmbrellaApiClient;
 import com.qa.portfolio.context.TestContext;
 import com.qa.portfolio.factory.SubjectDataFactory;
 import com.qa.portfolio.model.SubjectDto;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasKey;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
@@ -95,5 +98,13 @@ public class GenericApiSteps {
     public void theResponseBodyTimeShouldBeLessThanMilliseconds(long maxTimeMs) {
         apiClient.getLastResponse().then().time(lessThan(maxTimeMs));
         System.out.println("⏱️ Válaszidő ellenőrizve: kevesebb mint " + maxTimeMs + " ms (Aktuális: " + apiClient.getLastResponse().getTime() + " ms)");
+    }
+
+    @And("the response body should not contain field {string}")
+    public void theResponseBodyShouldNotContainField(String fieldName) {
+        // Ellenőrizzük, hogy a JSON válasz nem tartalmazza a tiltott érzékeny mezőt
+        com.qa.portfolio.context.TestContext.getResponse()
+                .then()
+                .body("$", not(hasKey(fieldName)));
     }
 }
