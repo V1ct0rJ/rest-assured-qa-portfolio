@@ -5,18 +5,21 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Meghagytuk a manuális indítás lehetőségét!
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -25,12 +28,10 @@ jobs:
       - name: Run Tests with Maven
         run: mvn clean test
 
-      # ÚJ LÉPÉS: Allure riport generálása a tesztfutás után
       - name: Generate Allure Report
         if: always()
         run: mvn allure:report
 
-      # EREDETI LÉPÉS: Megtartjuk a Cucumber HTML riport feltöltését is
       - name: Upload Cucumber HTML Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -38,7 +39,6 @@ jobs:
           name: cucumber-html-report
           path: target/cucumber-reports/cucumber.html
 
-      # ÚJ LÉPÉS: Az Allure weboldal fájljainak feltöltése
       - name: Upload Allure Report Artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -46,17 +46,15 @@ jobs:
           name: allure-execution-report
           path: target/site/allure-maven-plugin
 
-      # --------------------------------------------------------
-      # DAST BIZTONSÁGI TESZT: OWASP ZAP Baseline Scan
-      # --------------------------------------------------------
+      # DAST BIZTONSÁGI TESZT: OWASP ZAP Baseline Scan (fájlba mentéssel)
       - name: OWASP ZAP Baseline Scan
         if: always()
         uses: zaproxy/action-baseline@v0.12.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'https://jsonplaceholder.typicode.com/users'
-          cmd_options: '-a'
-          fail_action: false # Megakadályozzuk, hogy a CI elbukjon, ha a teszt API figyelmeztetéseket ad
+          cmd_options: '-r zap_report.html'
+          fail_action: false
 
       - name: Upload ZAP Scan Report
         if: always()
