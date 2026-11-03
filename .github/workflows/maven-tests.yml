@@ -1,4 +1,4 @@
-name: Umbrella API Tests with Allure
+name: Umbrella API Tests with Allure & ZAP Security
 
 on:
   push:
@@ -45,3 +45,22 @@ jobs:
         with:
           name: allure-execution-report
           path: target/site/allure-maven-plugin
+
+      # --------------------------------------------------------
+      # DAST BIZTONSÁGI TESZT: OWASP ZAP Baseline Scan
+      # --------------------------------------------------------
+      - name: OWASP ZAP Baseline Scan
+        if: always()
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target: 'https://jsonplaceholder.typicode.com/users'
+          cmd_options: '-a'
+          fail_action: false # Megakadályozzuk, hogy a CI elbukjon, ha a teszt API figyelmeztetéseket ad
+
+      - name: Upload ZAP Scan Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-security-report
+          path: zap_report.html
