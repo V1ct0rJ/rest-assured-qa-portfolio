@@ -213,6 +213,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>com.lazerycode.jmeter</groupId>
                 <artifactId>jmeter-maven-plugin</artifactId>
@@ -233,8 +234,11 @@
                 </executions>
                 <configuration>
                     <testResultsTimestamp>false</testResultsTimestamp>
+                    <!-- ITT adjuk meg, hogy a gyökérben lévő jmeter mappát használja: -->
+                    <testFilesDirectory>${project.basedir}/jmeter</testFilesDirectory>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>
