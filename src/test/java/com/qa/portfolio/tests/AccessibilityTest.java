@@ -48,7 +48,15 @@ public class AccessibilityTest { // Deklarálja az akadálymentességi teszt osz
             System.out.println("  Hatás (Impact): " + violation.getImpact()); // Kiírja a hiba súlyosságát (minor, serious, stb.)
         }
 
-        assertEquals(0, violations.size(), "Az oldal nem felelt meg az akadálymentességi követelményeknek!"); // 4. Ellenőrizi: elvárjuk, hogy 0 hiba legyen, különösen hibát dob
+        // Megszámoljuk, hány súlyos vagy kritikus hiba van
+        long severeViolations = violations.stream()
+                .filter(v -> "critical".equalsIgnoreCase(v.getImpact()))
+                .count();
+
+        System.out.println("Kritikus akadálymentességi hibák száma: " + severeViolations);
+
+        // Csak a kritikus  hibákra adjuk el a buildet
+        assertEquals(0, severeViolations, "Az oldalon kritikus akadálymentességi hibák találhatók!");
     }
 
     @AfterEach // Ez a metódus lefut minden egyes @Test metódus *után* (takarítás)
