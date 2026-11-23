@@ -58,7 +58,7 @@ public class GenericApiSteps {
         SubjectDto dynamicSubject = SubjectDataFactory.createRandomSubject();
         apiClient.setRequestBody(dynamicSubject);
         TestContext.set(TestContext.REQUEST_BODY, dynamicSubject);
-        System.out.println("🎲 Dinamikus Subject generálva: " + dynamicSubject.getName());
+        System.out.println("Dinamikus Subject generálva: " + dynamicSubject.getName());
     }
 
     // --- WHEN LÉPÉSEK (Végrehajtás) ---
@@ -97,7 +97,7 @@ public class GenericApiSteps {
     @Then("the response time should be less than {long} milliseconds")
     public void theResponseBodyTimeShouldBeLessThanMilliseconds(long maxTimeMs) {
         apiClient.getLastResponse().then().time(lessThan(maxTimeMs));
-        System.out.println("⏱️ Válaszidő ellenőrizve: kevesebb mint " + maxTimeMs + " ms (Aktuális: " + apiClient.getLastResponse().getTime() + " ms)");
+        System.out.println("Válaszidő ellenőrizve: kevesebb mint " + maxTimeMs + " ms (Aktuális: " + apiClient.getLastResponse().getTime() + " ms)");
     }
 
     @And("the response body should not contain field {string}")

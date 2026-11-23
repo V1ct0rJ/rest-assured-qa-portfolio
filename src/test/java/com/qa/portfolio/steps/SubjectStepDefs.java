@@ -21,9 +21,9 @@ public class SubjectStepDefs {
 
         // Kinyomtatjuk a logba a pontos mezőket, amik a DTO-ban léteznek
         System.out.println("==================================================");
-        System.out.println("🎲 [DATA FACTORY] Generált alany neve: " + requestSubject.getName());
-        System.out.println("🎲 [DATA FACTORY] Generált státusz: " + requestSubject.getStatus());
-        System.out.println("🎲 [DATA FACTORY] Generált veszélyességi szint: " + requestSubject.getDangerLevel());
+        System.out.println("[DATA FACTORY] Generált alany neve: " + requestSubject.getName());
+        System.out.println("[DATA FACTORY] Generált státusz: " + requestSubject.getStatus());
+        System.out.println("[DATA FACTORY] Generált veszélyességi szint: " + requestSubject.getDangerLevel());
         System.out.println("==================================================");
     }
 

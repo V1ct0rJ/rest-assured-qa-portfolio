@@ -38,7 +38,7 @@ public class TestContext {
     }
 
     public static void setResponse(Response res) {
-        System.out.println("💾 [TestContext SAVE] Response elmentve a szálon: " + Thread.currentThread().getName() + " (ID: " + Thread.currentThread().getId() + ")");
+        System.out.println("[TestContext SAVE] Response elmentve a szálon: " + Thread.currentThread().getName() + " (ID: " + Thread.currentThread().getId() + ")");
         response.set(res);
         sessionData.get().put(RESPONSE, res);
     }
